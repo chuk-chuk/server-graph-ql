@@ -1,0 +1,8 @@
+###
+GraphQL Server
+
+###
+yarn start
+
+###
+Visit localhost:4000/graphql
