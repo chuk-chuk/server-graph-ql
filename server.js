@@ -2,9 +2,14 @@ const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
 const { graphqlHTTP } = require('express-graphql')
-
 const graphqlSchema = require('./graphql/schema')
 const graphqlResolver = require('./graphql/resolvers')
+const dotenv = require('dotenv')
+const mongoose = require("mongoose")
+
+mongoose.Promise = global.Promise
+
+dotenv.config()
 
 const app = express()
 
@@ -20,7 +25,8 @@ app.use((req, res, next) => {
 
 app.use('/graphql', graphqlHTTP({
   schema: graphqlSchema,
-  rootValue: graphqlResolver
+  rootValue: graphqlResolver,
+  graphql: true
 }))
 
 app.use((error, req, res, next) => {
@@ -31,4 +37,15 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data})
 })
 
-app.listen(4000, () => console.log('Express GraphQL Server Now Running On localhost:4000/graphql'));
+mongoose
+    .connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      })
+    .then(() => {
+        console.log('MongoDB connected successfully')
+        app.listen(process.env.PORT, () => console.log('Express GraphQL Server is running on localhost:4000/graphql'))
+    })
+    .catch((error) => {
+        console.error(error || 'Error while connecting to MongoDB');
+    })
