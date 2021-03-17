@@ -1,12 +1,12 @@
 const express = require('express')
 const path = require('path')
-const bodyParser = require('body-parser')
 const { graphqlHTTP } = require('express-graphql')
 const graphqlSchema = require('./graphql/schema')
 const graphqlResolver = require('./graphql/resolvers')
 const auth = require('./middleware/auth')
 const dotenv = require('dotenv')
-const mongoose = require("mongoose")
+const mongoose = require('mongoose')
+const Logger = require('./logger')
 
 mongoose.Promise = global.Promise
 
@@ -14,8 +14,15 @@ dotenv.config()
 
 const app = express()
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.get("/logger", (_, res) => {
+  Logger.error("This is an error log");
+  Logger.warn("This is a warn log");
+  Logger.info("This is a info log");
+  Logger.http("This is a http log");
+  Logger.debug("This is a debug log");
+
+  res.send("Hello world");
+});
 
 app.use('/images', express.static(path.join(__dirname, 'images')))
 
@@ -44,15 +51,16 @@ app.use('/graphql', graphqlHTTP({
     const data = err.originalError.data
     const message = err.message || "An error occurred"
     const code = err.originalError.code || 500
+
     return { message: message, status: code, data: data }
   }
 }))
 
 app.use((error, req, res, next) => {
-  console.log(error)
   const status = error.statusCode || 500
   const message = error.message
   const data = error.data
+
   res.status(status).json({ message: message, data: data})
 })
 
@@ -64,9 +72,9 @@ mongoose
         useUnifiedTopology: true,
       })
     .then(() => {
-        console.log('MongoDB connected successfully')
+        Logger.info('MongoDB connected successfully');
         app.listen(process.env.PORT, () => console.log('Express GraphQL Server is running on localhost:4000/graphql'))
     })
     .catch((error) => {
-        console.error(error || 'Error while connecting to MongoDB');
+        Logger.error(error || 'Error while connecting to MongoDB');
     })
