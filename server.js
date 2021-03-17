@@ -73,7 +73,7 @@ mongoose
       })
     .then(() => {
         Logger.info('MongoDB connected successfully');
-        app.listen(process.env.PORT, () => console.log('Express GraphQL Server is running on localhost:4000/graphql'))
+        app.listen(process.env.PORT, () => Logger.info('Express GraphQL Server is running on localhost:4000/graphql'))
     })
     .catch((error) => {
         Logger.error(error || 'Error while connecting to MongoDB');

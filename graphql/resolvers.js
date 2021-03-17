@@ -108,10 +108,12 @@ module.exports = {
      })
      const createdPost = await post.save()
      user.posts.push(createdPost)   // add post to users' posts
+
      await user.save()
+
      return { ...createdPost._doc, 
       _id: createdPost._id.toString(), 
-      createdAt: createPost.createdAt.toISOString(), 
+      createdAt: createdPost.createdAt.toISOString(), 
       updatedAt: createdPost.updatedAt.toISOString()
     }
   },
