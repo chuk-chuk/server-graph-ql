@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const { graphqlHTTP } = require('express-graphql')
 const graphqlSchema = require('./graphql/schema')
 const graphqlResolver = require('./graphql/resolvers')
+const auth = require('./middleware/auth')
 const dotenv = require('dotenv')
 const mongoose = require("mongoose")
 
@@ -29,6 +30,8 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+app.use(auth)
 
 app.use('/graphql', graphqlHTTP({
   schema: graphqlSchema,
