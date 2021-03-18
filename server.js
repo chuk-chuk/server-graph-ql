@@ -45,6 +45,7 @@ app.use('/graphql', graphqlHTTP({
   rootValue: graphqlResolver,
   graphiql: true,
   customFormatErrorFn(err) {
+    // formatted graphQL errors
     if(!err.originalError){
       return err
     }
@@ -57,15 +58,17 @@ app.use('/graphql', graphqlHTTP({
 }))
 
 app.use((error, req, res, next) => {
+  // network errors
   const status = error.statusCode || 500
   const message = error.message
   const data = error.data
+
+  log.error(error)
 
   res.status(status).json({ message: message, data: data})
 })
 
 mongoose.set('useCreateIndex', true)
-
 mongoose
     .connect(process.env.MONGODB_URI, {
         useNewUrlParser: true,

@@ -6,18 +6,27 @@ const postSchema = new Schema({
     type: String,
     required: true
   },
-  imageUrl: {
-    type: String,
-    required: true
-  },
   content: {
     type: String,
     required: true
   },
-  creator: {
-    type: Object,
+  imageUrl: {
+    type: String,
     required: true
-  }
+  },
+  creator: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  comments: [{
+    text: { type: String, required: true },
+    postedBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
+}]
 }, { timestamps: true })
 
 const Post = mongoose.model('Post', postSchema)

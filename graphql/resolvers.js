@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 
 const User = require('../models/user')
 const Post = require('../models/post')
+const { Logger } = require('../logger')
 
 module.exports = {
   createUser: async ({ userInput }, req) =>  {
@@ -40,7 +41,10 @@ module.exports = {
     
     const createdUser = await user.save()
 
-    return {...createdUser._doc, _id: createdUser._id.toString()}
+    return {...createdUser._doc, 
+      _id: createdUser._id.toString(),
+      createdAt: createdUser.createdAt.toISOString(),
+    }
   },
 
   login: async ({ email, password }) => {
@@ -75,13 +79,16 @@ module.exports = {
       throw error
     }
     const errors = []
-    
+    // class validator, yup, validation of untyped values 
+    // a: validate input
+    // b: database logic : create, update, delete ...
+    // c: return result
     if (validator.isEmpty(postInput.title) || !validator.isLength(postInput.title, { min: 5 })) {
-      errors.push({ message: "title is invalid" })
+      errors.push({ message: "Title is invalid" })
     }
     
     if (validator.isEmpty(postInput.content) || !validator.isLength(postInput.content, { min: 5 })) {
-      errors.push({ message: "content is invalid" })
+      errors.push({ message: "Content is invalid" })
     }
     
     if (errors.length > 0) {
@@ -104,12 +111,10 @@ module.exports = {
        title: postInput.title,
        content: postInput.content,
        imageUrl: postInput.imageUrl,
-       creator: user
+       creator: user._id,
      })
-     const createdPost = await post.save()
-     user.posts.push(createdPost)   // add post to users' posts
 
-     await user.save()
+     const createdPost = await post.save()
 
      return { ...createdPost._doc, 
       _id: createdPost._id.toString(), 
